@@ -23,14 +23,22 @@ def main():
     out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
     try:
         os.makedirs(out_dir, exist_ok=True)
-        with open(os.path.join(out_dir, "entry.txt"), "wb") as f:
+        target = os.path.join(out_dir, "entry.txt")
+        with open(target, "wb") as f:
             f.write(data)
+        # Read-back verification: the file on disk must be exactly the line.
+        with open(target, "rb") as f:
+            if f.read() != data:
+                raise SystemExit("entry.txt read-back mismatch")
         return
     except OSError:
         pass
     fallback = os.path.join(os.path.dirname(os.path.abspath(__file__)), "entry.txt")
     with open(fallback, "wb") as f:
         f.write(data)
+    with open(fallback, "rb") as f:
+        if f.read() != data:
+            raise SystemExit("entry.txt read-back mismatch")
 
 
 if __name__ == "__main__":
